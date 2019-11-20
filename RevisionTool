@@ -4,7 +4,7 @@
 if($argc < 2){ echo "Invalid Args\n"; exit(-1); }
 
 $mode = trim($argv[1]);
-$path = ($argc < 3) ? "Revision.byte" : trim($argv[2]);
+$path = ($argc < 3) ? "REVISION.byte" : trim($argv[2]);
 $prefix = ($argc < 4) ? "" : trim($argv[3]);
 $currentRev = "";
 
