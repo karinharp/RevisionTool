@@ -1,0 +1,67 @@
+#!/usr/bin/php
+<?php
+
+if($argc < 2){ echo "Invalid Args\n"; exit(-1); }
+
+$mode = trim($argv[1]);
+$path = ($argc < 3) ? "Revision.byte" : trim($argv[2]);
+$prefix = ($argc < 4) ? "" : trim($argv[3]);
+$currentRev = "";
+
+switch($mode){
+case "help":
+    $out = <<< EOF
+How To Use:
+--------------------------------------------------------
+
+RevisionTool [mode] [path] [prefix]
+
+mode(required)   : show / update / create / help
+path(optional)   : revision file path ( default : Revision.byte )
+prefix(optional) : revision prefix ( default : ) 
+
+sample usage:
+RevisionTool create Revision.byte DAT-
+EOF;
+    break;
+case "show":
+    $out = GetRevision($path);
+    if($out == ""){ $out = "Revision File NotFound."; }
+    break;
+case "update":
+    $currentRev = GetRevision($path);
+    CreateRevision($path, $prefix, $currentRev);
+    $updateRev = GetRevision($path);
+    if($updateRev == ""){ $out = "Revision File Update Fail."; }
+    else                { $out = "Revision File Update [".$currentRev."] => [".$updateRev."]"; }
+    break;
+case "create":
+    CreateRevision($path, $prefix, $currentRev);
+    $updateRev = GetRevision($path);
+    if($updateRev == ""){ $out = "Revision File Create Fail."; }
+    else                { $out = "Revision File Create [".$updateRev."]"; }
+    break;
+default: 
+    $out = "Invalid Mode"; 
+    break;
+}
+
+echo  $out . "\n";
+
+exit(0);
+
+/*==========================================================================================*/
+
+function GetRevision($path){    
+    $ret = file_get_contents($path);
+    if($ret === FALSE){ return ""; }
+    else              { return trim($ret); }
+}
+
+function CreateRevision($path, $prefix, $rev = ""){    
+    $fmt  = "%Y%m%d";
+    $cnt  = ($rev == "") ? 0 : (int)substr($rev, 9+strlen($prefix));
+    ++$cnt;
+    $updateRev = $prefix . strftime($fmt) . sprintf("%02d", $cnt);
+    return file_put_contents($path, $updateRev);
+}
